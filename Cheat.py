@@ -118,7 +118,7 @@ def getCase():
     img_rgb = cv2.imread('1.png')
     img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
 
-    template = cv2.imread('buguanta.jpg',0)
+    template = cv2.imread('cancelCart.jpg',0)
     w, h = template.shape[::-1]
  
     method = cv2.TM_CCOEFF_NORMED
@@ -167,13 +167,16 @@ def press_sure():
 def press_attack():
     print("press combat attack")
     s.tap(420, 330)
-    time.sleep(random.uniform(10, 15))
+    time.sleep(random.uniform(7, 9))
     print("press combat plan")
     s.tap(600, 30) # choose plan
     time.sleep(random.uniform(0.9, 1.5))
+
     print("press combat plan 6")
     s.tap(650, 200) #plan 6
     time.sleep(random.uniform(0.9, 1.5))
+
+    
     print("press combat attacking")
     s.tap(650, 390) #start
     time.sleep(random.uniform(50, 55))
@@ -213,43 +216,31 @@ def main():
         go_to_quest()
 
         func_set = press_up_left
+        time.sleep(random.uniform(1, 2))
         if fail == 0:
-            time.sleep(random.uniform(80, 90))
-            
+            time.sleep(random.uniform(79, 88))
         elif fail == 1:
-            time.sleep(random.uniform(1, 2))
             func_set = press_up_right
-            
         elif fail == 2:
-            time.sleep(random.uniform(1, 2))
             func_set = press_down_right
-        
         elif fail == 3:
-            time.sleep(random.uniform(1, 2))
-            func_set = press_down_left
-            
+            func_set = press_down_left  
         elif fail == 4:
-            time.sleep(random.uniform(1, 2))
             func_set = press_up
         elif fail == 5:
-            time.sleep(random.uniform(1, 2))
             func_set = press_down
         elif fail == 6:
-            time.sleep(random.uniform(1, 2))
             func_set = press_left
         elif fail == 7:
-            time.sleep(random.uniform(1, 2))
             func_set = press_right
         elif fail == 8:
-            time.sleep(random.uniform(1, 2))
             func_set = press_up_left
             fail = 0
 
-
         func_set()
-        time.sleep(random.uniform(1, 1.5))
+        time.sleep(random.uniform(1, 2))
         pull_screenshot()
-        time.sleep(random.uniform(5, 10))
+        time.sleep(random.uniform(3, 5))
         ttype = getCase()
 
         if ttype == TaskType.CHOCOLATE:
@@ -264,14 +255,12 @@ def main():
             print("sucess = " ,success, success*100/count)
         elif ttype == TaskType.BERRY:
             press_attack()
-            print("Don't do small task")
+            print("do small task")
             fail += 1
         else:
             print("can not find")
             fail += 1
             
-
-
 
 if __name__ == '__main__':
     main()
