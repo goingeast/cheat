@@ -40,15 +40,19 @@ def jump(distance):
 
 def press_quest():
     print("Quest button pressed")
-    s.tap_hold(40, 390, 0.5)
+    s.tap_hold(40 , 390, 0.5)
     time.sleep(random.uniform(0.9, 1.5))
     #s.tap_hold(30,30, 0.5)
     #time.sleep(random.uniform(0.9, 1.5))
    # s.tap_hold(80, 360, 0.5)
+def press_back():
+    print("Back button pressed")
+    s.tap(30, 30)
+    time.sleep(random.uniform(0.5, 1.0))
 
-def go_to_quest():
+def go_to_quest(number):
     print("Go to Quest button pressed")
-    s.tap_hold(500, 100, 0.5)
+    s.tap_hold(500, 100+number*80, 0.5)
     time.sleep(random.uniform(0.9, 1.5))
     s.tap_hold(368, 252, 0.5)
     
@@ -114,6 +118,27 @@ def press_right():
     s.tap(380+80, 200)
     time.sleep(random.uniform(0.9, 1.5))
 
+def ifUpgrade():
+    pull_screenshot()
+    img_rgb = cv2.imread('1.png')
+    img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
+
+    template = cv2.imread('star.jpg',0)
+    w, h = template.shape[::-1]
+ 
+    method = cv2.TM_CCOEFF_NORMED
+
+# resource
+    res = cv2.matchTemplate(img_gray,template,method)
+# If the method is TM_SQDIFF or TM_SQDIFF_NORMED, take minimum
+
+    threshold = 0.9
+    loc = np.where( res >= threshold)
+
+    for pt in zip(*loc[::-1]):
+        return True
+    return False
+
 def getCase():
     img_rgb = cv2.imread('1.png')
     img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
@@ -156,6 +181,17 @@ def getCase():
 
     for pt in zip(*loc[::-1]):
         return TaskType.BERRY
+# city
+    template = cv2.imread('backArrow.jpg',0)
+    w, h = template.shape[::-1]
+    method = cv2.TM_CCOEFF_NORMED
+
+    res = cv2.matchTemplate(img_gray,template,method)
+    threshold = 0.9
+    loc = np.where( res >= threshold)
+
+    for pt in zip(*loc[::-1]):
+        return TaskType.PEACH
 
     return TaskType.NONE
 
@@ -176,13 +212,25 @@ def press_attack():
     s.tap(650, 200) #plan 6
     time.sleep(random.uniform(0.9, 1.5))
 
-    
+    print("press heal hero")
+    s.tap(420, 200+45)
+    s.tap(420, 200+45)
+    s.tap(420, 200+45)
+    s.tap(420, 200+45)
+    time.sleep(random.uniform(0.9, 1.5))
+
     print("press combat attacking")
     s.tap(650, 390) #start
-    time.sleep(random.uniform(50, 55))
+    time.sleep(random.uniform(45, 50))
     print("press combat attacking complete")
     s.tap(500, 390) #finish
     time.sleep(random.uniform(3, 4))
+
+    # if ifUpgrade():
+    #     print("press combat hero upgrade")
+    #     s.tap(400, 390) #finish
+    #     time.sleep(random.uniform(3, 4))
+
     print("press combat hero exp")
     s.tap(400, 390) #finish
     time.sleep(random.uniform(3, 4))
@@ -200,20 +248,22 @@ class TaskType(Enum):
     VANILLA = 1
     CHOCOLATE = 2
     BERRY = 3
-    NONE = 4
+    PEACH = 4
+    NONE = 5
 
 #380, 200
 def main():
     count = 0
     success = 0
     fail = 0
+    tryNext = 1
     pull_screenshot()
-    #im = Image.open("./1.png")
+    
     while True:
         count += 1
         press_quest()
         #press_rank()
-        go_to_quest()
+        go_to_quest(tryNext)
 
         func_set = press_up_left
         time.sleep(random.uniform(1, 2))
@@ -234,13 +284,12 @@ def main():
         elif fail == 7:
             func_set = press_right
         elif fail == 8:
-            func_set = press_up_left
             fail = 0
+            func_set = press_up_left
 
         func_set()
-        time.sleep(random.uniform(1, 2))
+        time.sleep(random.uniform(3, 4))
         pull_screenshot()
-        time.sleep(random.uniform(3, 5))
         ttype = getCase()
 
         if ttype == TaskType.CHOCOLATE:
@@ -256,6 +305,10 @@ def main():
         elif ttype == TaskType.BERRY:
             press_attack()
             print("do small task")
+            fail += 1
+        elif ttype == TaskType.PEACH:
+            press_back()
+            print("went to city, BACK!")
             fail += 1
         else:
             print("can not find")
