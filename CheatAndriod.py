@@ -6,7 +6,6 @@ import math
 import random
 import json
 from PIL import Image, ImageDraw
-import wda
 from enum import Enum
 import cv2
 import numpy as np
@@ -15,107 +14,133 @@ matplotlib.use('TkAgg')
 
 from matplotlib import pyplot as plt
 
-
+from common import screenshot
+from common.auto_adb import auto_adb
 
 VERSION = "0.0.1"
-c = wda.Client()
-s = c.session()
-print("设备尺寸", s.window_size())
-print s.orientation
-s.orientation = wda.LANDSCAPE
+
 screenshot_backup_dir = 'screenshot_backups/'
+
+adb = auto_adb()
+
+keypoint = {'quest':[100,1070 - 100],
+            'quest1':[1300, 1070 - 800],
+            'quest2':[1300, 1070 - 800 + 210],
+            'back':[50,50],
+            'go':[1020,1070 - 420],
+            'move-up-left':[960 -100 *1.2, 1070 - 590 - 100 *1.2],
+            'move-up-right':[960 +100*1.2, 1070 - 590 - 100*1.2],
+            'move-down-left':[960 -100*1.3, 1070 - 590 + 100*1.3],
+            'move-down-right':[960 +100*1.3, 1070 - 590 + 100*1.3],
+            'move-up':[960 , 1070 - 590 - 120*1.1],
+            'move-down':[960 , 1070 - 590 + 120*1.1],
+            'move-left':[960 -120*1.1, 1070 - 590],
+            'move-right':[960 +120*1.1, 1070 - 590],
+            'sure':[1020,1070-400],
+            'attack':[1200, 1070 -250],
+            'plans':[1600, 1070 - 970],
+            'plan6':[1750, 1070 - 570],
+            'recover':[1200, 1070 -350],
+            'start':[1750, 1070 - 160],
+            'complete':[1200, 1070 - 100],
+            'heroexp':[1000, 1070 - 100],
+            'loot':[1000, 1070 -200]}
+
+
+def tap(x , y):
+    cmd = 'shell input tap {x1} {y2}'.format(
+        x1=x,
+        y2=y,
+    )
+    print(cmd)
+    adb.run(cmd)
 
 if not os.path.isdir(screenshot_backup_dir):
     os.mkdir(screenshot_backup_dir)
 
 
 def pull_screenshot():
-    c.screenshot('1.png')
+    screenshot.pull_screenshot()
 
-
-def jump(distance):
-    press_time = 1000
-    print('press time: {}'.format(press_time))
-    s.tap_hold(random.uniform(0, 320), random.uniform(64, 320), press_time)
 
 def press_quest():
     print("Quest button pressed")
-    s.tap_hold(40 , 390, 0.5)
+    tap(keypoint['quest'][0], keypoint['quest'][1])
     time.sleep(random.uniform(0.9, 1.5))
-    #s.tap_hold(30,30, 0.5)
+    #tap(30,30)
     #time.sleep(random.uniform(0.9, 1.5))
-   # s.tap_hold(80, 360, 0.5)
+   # tap(80, 360)
 def press_back():
     print("Back button pressed")
-    s.tap(30, 30)
+    tap(keypoint['back'][0], keypoint['back'][1])
     time.sleep(random.uniform(0.5, 1.0))
 
 def go_to_quest(number):
     print("Go to Quest button pressed")
-    s.tap_hold(500, 100+number*80, 0.5)
+    tap(keypoint['quest2'][0], keypoint['quest2'][1])
     time.sleep(random.uniform(0.9, 1.5))
-    s.tap_hold(368, 252, 0.5)
+    tap(keypoint['go'][0], keypoint['go'][1])
     
 
 def press_rank():
     print("Map button pressed")
-    s.tap(500, 390)
+    tap(500, 390)
     time.sleep(random.uniform(0.9, 1.5))
-    s.tap_hold(30,30, 0.5)
+    tap(30,30)
     time.sleep(random.uniform(0.9, 1.5))
 
 def press_map():
     print("Map button pressed")
-    s.tap_hold(120, 390, 0.5)
+    tap(120, 390)
     time.sleep(random.uniform(0.9, 1.5))
-    s.tap_hold(30,30, 0.5)
+    tap(30,30)
     time.sleep(random.uniform(0.9, 1.5))
 
 def press_home():
     print("Home button pressed")
-    s.tap_hold(200, 390, 0.5)
+    tap(200, 390)
     time.sleep(random.uniform(0.9, 1.5))
-    s.tap_hold(30,30, 0.5)
+    tap(30,30)
     time.sleep(random.uniform(0.9, 1.5))
 
 def press_up_left():
     print("up left pressed")
-    s.tap(380-70, 200-70)
+    tap(keypoint['move-up-left'][0], keypoint['move-up-left'][1])
     time.sleep(random.uniform(0.9, 1.5))
 
 def press_up_right():
-    print("down right pressed")
-    s.tap(380+70, 200-70)
+    print("up right pressed")
+    tap(keypoint['move-up-right'][0], keypoint['move-up-right'][1])
     time.sleep(random.uniform(0.9, 1.5))
 
 def press_down_left():
-    print("left down pressed")
-    s.tap(380-70, 200+70)
+    print("down left  pressed")
+    tap(keypoint['move-down-left'][0], keypoint['move-down-left'][1])
     time.sleep(random.uniform(0.9, 1.5))
 
 def press_down_right():
-    print("right up pressed")
-    s.tap(380+70, 200+70)
+    print("down right pressed")
+    tap(keypoint['move-down-right'][0], keypoint['move-down-right'][1])
     time.sleep(random.uniform(0.9, 1.5))
 
 def press_up():
     print("up pressed")
-    s.tap(380, 200-80)
+    tap(keypoint['move-up'][0], keypoint['move-up'][1])
     time.sleep(random.uniform(0.9, 1.5))
 
 def press_down():
     print("down pressed")
-    s.tap(380, 200+80)
+    tap(keypoint['move-down'][0], keypoint['move-down'][1])
     time.sleep(random.uniform(0.9, 1.5))
 
 def press_left():
     print("left pressed")
-    s.tap(380-80, 200)
+    tap(keypoint['move-left'][0], keypoint['move-left'][1])
     time.sleep(random.uniform(0.9, 1.5))
 
 def press_right():
     print("right pressed")
-    s.tap(380+80, 200)
+    tap(keypoint['move-right'][0], keypoint['move-right'][1])
     time.sleep(random.uniform(0.9, 1.5))
 
 def ifUpgrade():
@@ -143,7 +168,7 @@ def getCase():
     img_rgb = cv2.imread('1.png')
     img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
 
-    template = cv2.imread('cancelCart.jpg',0)
+    template = cv2.imread('cancelCart_a.jpg',0)
     w, h = template.shape[::-1]
  
     method = cv2.TM_CCOEFF_NORMED
@@ -158,7 +183,7 @@ def getCase():
     for pt in zip(*loc[::-1]):
         return TaskType.CHOCOLATE
 # battle task
-    template = cv2.imread('sure.jpg',0)
+    template = cv2.imread('sure_a.jpg',0)
     w, h = template.shape[::-1]
     method = cv2.TM_CCOEFF_NORMED
 
@@ -171,7 +196,7 @@ def getCase():
         return TaskType.VANILLA
 
 #  battle
-    template = cv2.imread('attack.jpg',0)
+    template = cv2.imread('attack_a.jpg',0)
     w, h = template.shape[::-1]
     method = cv2.TM_CCOEFF_NORMED
 
@@ -182,7 +207,7 @@ def getCase():
     for pt in zip(*loc[::-1]):
         return TaskType.BERRY
 # city
-    template = cv2.imread('backArrow.jpg',0)
+    template = cv2.imread('backArrow_a.jpg',0)
     w, h = template.shape[::-1]
     method = cv2.TM_CCOEFF_NORMED
 
@@ -197,45 +222,46 @@ def getCase():
 
 def press_sure():
     print("press sure")
-    s.tap(420, 200+45)
+    tap(keypoint['sure'][0], keypoint['sure'][1])
     time.sleep(random.uniform(0.9, 1.5))
 
 def press_attack():
     print("press combat attack")
-    s.tap(420, 330)
+    tap(keypoint['attack'][0], keypoint['attack'][1])
     time.sleep(random.uniform(7, 9))
     print("press combat plan")
-    s.tap(600, 30) # choose plan
+    tap(keypoint['plans'][0], keypoint['plans'][1]) # choose plan
     time.sleep(random.uniform(0.9, 1.5))
 
     print("press combat plan 6")
-    s.tap(650, 200) #plan 6
+    tap(keypoint['plan6'][0], keypoint['plan6'][1]) #plan 6
     time.sleep(random.uniform(0.9, 1.5))
 
     print("press heal hero")
-    s.tap(420, 200+45)
-    s.tap(420, 200+45)
-    s.tap(420, 200+45)
-    s.tap(420, 200+45)
+    tap(keypoint['recover'][0], keypoint['recover'][1])
+    tap(keypoint['recover'][0], keypoint['recover'][1])
+    tap(keypoint['recover'][0], keypoint['recover'][1])
+    tap(keypoint['recover'][0], keypoint['recover'][1])
+
     time.sleep(random.uniform(0.9, 1.5))
 
     print("press combat attacking")
-    s.tap(650, 390) #start
+    tap(keypoint['start'][0], keypoint['start'][1]) #start
     time.sleep(random.uniform(45, 50))
     print("press combat attacking complete")
-    s.tap(500, 390) #finish
+    tap(keypoint['complete'][0], keypoint['complete'][1]) #finish
     time.sleep(random.uniform(3, 4))
 
     # if ifUpgrade():
     #     print("press combat hero upgrade")
-    #     s.tap(400, 390) #finish
+    #     tap(400, 390) #finish
     #     time.sleep(random.uniform(3, 4))
 
     print("press combat hero exp")
-    s.tap(400, 390) #finish
+    tap(keypoint['heroexp'][0], keypoint['heroexp'][1]) #finish
     time.sleep(random.uniform(3, 4))
     print("press combat loot")
-    s.tap(400, 390) #finish
+    tap(keypoint['loot'][0], keypoint['loot'][1]) #finish
     time.sleep(random.uniform(0.9, 1.5))
 
 def press_combat():
